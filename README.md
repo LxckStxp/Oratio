@@ -1,54 +1,64 @@
-Oratio Logging System
+# Oratio Logging System
 
 A lightweight logging system for Roblox. Below you'll find instructions on how to integrate and use it in your project.
 
 
 
-Installation
 
-Host the Oratio repository on GitHub.
-Use Roblox's HTTP-get functionality to load the main entry point (Oratio.lua) from the GitHub URL.
+## Installation
+
+1. Host the Oratio repository on GitHub.
+2. Use Roblox's HTTP-get functionality to load the main entry point (Oratio.lua) from the GitHub URL.
 
 
 
-Usage
 
-Loading the Logging System
+## Usage
+
+### Loading the Logging System
 
 To start using Oratio, load the main script using the following Lua code in your executor or game script:
 
+```lua
 local Oratio = loadstring(game:HttpGet("https://raw.githubusercontent.com/LxckStxp/Oratio/main/Oratio.lua", true))()
+```
 
 This command fetches and executes the Oratio.lua file, which in turn loads all required components.
 
-Creating a Logger Instance
+### Creating a Logger Instance
 
-Create a new logger by calling the new method on the Logger module. Optionally pass configuration settings like moduleName and minLevel:
+Create a new logger by calling the `new` method on the Logger module. Optionally pass configuration settings like moduleName and minLevel:
 
+```lua
 local logger = Oratio.Logger.new({
     moduleName = "InjectedScript"
 })
+```
 
-The moduleName allows you to identify the source of logged events, and you can customize the minimum log level and formatter if needed.
+The `moduleName` allows you to identify the source of logged events, and you can customize the minimum log level and formatter if needed.
 
-Logging Messages
+### Logging Messages
 
 Use the logger instance to log messages at various levels:
 
+```lua
 logger:Info("Script started successfully")
 logger:Warn("Potential issue detected")
 logger:Error("An error occurred")
 logger:Debug("Debug message")
+```
 
 Each logging function formats and prints a message to the output, making it easy to trace events, warnings, errors, and debug information.
 
 
 
-Configuration
 
-Customization:  
+## Configuration
+
+- **Customization**:  
   Adjust the default formatter by passing your custom function in the Logger configuration. Example:
 
+```lua
   local customFormatter = function(moduleName, level, message)
       return string.format("<< %s >> [%s]: %s", moduleName, level, message)
   end
@@ -57,16 +67,19 @@ Customization:
       moduleName = "CustomModule",
       formatter = customFormatter
   })
+```
 
-HTTP Request Requirement:  
+- **HTTP Request Requirement**:  
   Ensure that your Roblox executor allows HTTP requests because this system loads its modules remotely.
 
 
 
-Example Integration
+
+## Example Integration
 
 Below is a complete example to demonstrate how to integrate the logging system into your Roblox script:
 
+```lua
 -- Load the logging system
 local Oratio = loadstring(game:HttpGet("https://raw.githubusercontent.com/LxckStxp/Oratio/main/Oratio.lua", true))()
 
@@ -81,8 +94,10 @@ logger:Info("Game initialization complete")
 logger:Warn("Minor delay encountered in loading assets")
 logger:Error("Failed to load essential asset")
 logger:Debug("Player X coordinates updated")
+```
 
 Simply copy this script into your game, and the logging system will handle the rest.
+
 
 
 
