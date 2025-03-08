@@ -3,10 +3,6 @@
 ```lua
 -- Load Oratio with a single loadstring call
 local Oratio = loadstring(game:HttpGet("https://raw.githubusercontent.com/LxckStxp/Oratio/main/init.lua", true))()
-if not Oratio then
-    print("Failed to load Oratio. Check network or repository.")
-    return
-end
 ```
 
 ## Overview
