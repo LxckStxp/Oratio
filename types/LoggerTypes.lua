@@ -9,7 +9,6 @@ return {
     },
     
     LogEntry = {
-        timestamp = "number",
         level = "string",
         message = "string"
     }
