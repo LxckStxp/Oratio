@@ -11,6 +11,9 @@ function Config.new(defaults)
     self.storeHistory = defaults.storeHistory or false
     self.outputEnabled = defaults.outputEnabled ~= false
     
+    -- Set metatable to allow method access
+    setmetatable(self, { __index = Config })
+    
     return self
 end
 
