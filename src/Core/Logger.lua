@@ -2,7 +2,7 @@
 local Logger = {}
 Logger.__index = Logger
 
--- Dependencies will be accessed from the global table
+-- Dependencies will be passed directly
 local Config
 local LogLevels
 local Formatters
@@ -26,7 +26,8 @@ function Logger:_log(level, message, ...)
     end
     
     local levelName = LogLevels.getName(level)
-    local formatter = self.config.formatter or Formatters.default
+    -- Fallback to a simple string if formatter fails
+    local formatter = self.config.formatter or (Formatters and Formatters.default) or function(_, _, msg) return msg end
     local formatted = formatter(self.config, levelName, message, ...)
     
     if self.config.outputEnabled then
@@ -78,7 +79,9 @@ end
 
 function Logger:clearHistory()
     if self._history then
-        table.clear(self._history)
+        for k in pairs(self._history) do
+            self._history[k] = nil
+        end
     end
 end
 
