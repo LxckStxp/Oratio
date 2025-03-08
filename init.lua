@@ -1,45 +1,56 @@
 -- Oratio/init.lua
 local baseUrl = "https://raw.githubusercontent.com/LxckStxp/Oratio/main/"
 
--- Set up global Oratio table if it doesn't exist
+-- Set up global Oratio table for data and services only
 _G.OratioGlobal = _G.OratioGlobal or {
     VERSION = "2.0.0",
     Services = {},
-    Modules = {},
     Data = {} -- General-purpose data storage
 }
 
 local Oratio = _G.OratioGlobal
 
--- Load dependencies only if not already loaded
-if not Oratio.Modules.Config then
-    Oratio.Modules.Config = loadstring(game:HttpGet(baseUrl .. "src/Config.lua", true))()
-end
-if not Oratio.Modules.LogLevels then
-    Oratio.Modules.LogLevels = loadstring(game:HttpGet(baseUrl .. "src/Core/LogLevels.lua", true))()
-end
-if not Oratio.Modules.Formatters then
-    Oratio.Modules.Formatters = loadstring(game:HttpGet(baseUrl .. "src/Core/Formatters.lua", true))()
-end
-if not Oratio.Modules.Logger then
-    Oratio.Modules.Logger = loadstring(game:HttpGet(baseUrl .. "src/Core/Logger.lua", true))()
-end
-if not Oratio.Modules.StringUtils then
-    Oratio.Modules.StringUtils = loadstring(game:HttpGet(baseUrl .. "src/Utilities/StringUtils.lua", true))()
+-- Load dependencies with error handling
+local function loadModule(path)
+    local success, result = pcall(function()
+        return loadstring(game:HttpGet(baseUrl .. path, true))()
+    end)
+    if not success or not result then
+        warn("Failed to load module " .. path .. ": " .. tostring(result))
+        return nil
+    end
+    return result
 end
 
--- Inject dependencies into Logger and Formatters
-Oratio.Modules.Logger._setDependencies(
-    Oratio.Modules.Config,
-    Oratio.Modules.LogLevels,
-    Oratio.Modules.Formatters,
-    Oratio.Modules.StringUtils
-)
-Oratio.Modules.Formatters._setStringUtils(Oratio.Modules.StringUtils)
+-- Load all modules
+local Config = loadModule("src/Config.lua")
+local LogLevels = loadModule("src/Core/LogLevels.lua")
+local Formatters = loadModule("src/Core/Formatters.lua")
+local StringUtils = loadModule("src/Utilities/StringUtils.lua")
+local Logger = loadModule("src/Core/Logger.lua")
+
+-- Ensure all modules loaded successfully before proceeding
+if not (Config and LogLevels and Formatters and StringUtils and Logger) then
+    warn("Oratio initialization failed: One or more modules could not be loaded.")
+    return nil
+end
+
+-- Pass dependencies directly to Logger and Formatters
+Logger._setDependencies(Config, LogLevels, Formatters, StringUtils)
+Formatters._setStringUtils(StringUtils)
+
+-- Store modules in Oratio for access
+Oratio.Modules = {
+    Config = Config,
+    LogLevels = LogLevels,
+    Formatters = Formatters,
+    Logger = Logger,
+    StringUtils = StringUtils
+}
 
 -- Convenience method to create a new logger
 function Oratio.new(config)
-    return Oratio.Modules.Logger.new(config or {})
+    return Logger.new(config or {})
 end
 
 -- Service registration for advanced usage
