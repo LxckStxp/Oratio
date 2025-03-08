@@ -100,8 +100,6 @@ Feel free to fork this repository and submit pull requests with enhancements or 
 ## License
 Oratio is provided as-is without a formal license. Use it at your own discretion.
 
-```
-
 ### Explanation
 1. **Loadstring at Top**: The README starts with the loadstring command, making it immediately accessible for users to copy and paste into their scripts.
 2. **Overview**: Briefly describes Oratio's purpose and version.
