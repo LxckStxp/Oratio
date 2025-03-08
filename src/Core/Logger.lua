@@ -7,7 +7,6 @@ local Config
 local LogLevels
 local Formatters
 local StringUtils
-local LogTargets
 
 function Logger.new(config)
     local self = setmetatable({}, Logger)
@@ -43,7 +42,10 @@ function Logger:_log(level, message, ...)
     end
     
     if self.config.outputEnabled then
-        LogTargets:log(formatted)
+        print(formatted)
+        if self.config.separator then
+            print(self.config.separator)
+        end
     end
     
     if self._history then
@@ -56,6 +58,15 @@ function Logger:_log(level, message, ...)
     for _, callback in pairs(self._callbacks) do
         pcall(callback, levelName, formatted)
     end
+end
+
+-- Section header with border
+function Logger:section(title, borderChar)
+    borderChar = borderChar or "="
+    local borderLength = 20
+    local totalLength = borderLength * 2 + #title + 2
+    local border = string.rep(borderChar, borderLength)
+    print(string.format("%s %s %s", border, title, border))
 end
 
 -- Logging methods
@@ -114,12 +125,11 @@ function Logger:removeCallback(id)
 end
 
 -- Dependency injection
-Logger._setDependencies = function(config, logLevels, formatters, stringUtils, logTargets)
+Logger._setDependencies = function(config, logLevels, formatters, stringUtils)
     Config = config
     LogLevels = logLevels
     Formatters = formatters
     StringUtils = stringUtils
-    LogTargets = logTargets
 end
 
 return Logger
