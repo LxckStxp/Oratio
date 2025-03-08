@@ -1,7 +1,7 @@
 -- Oratio/src/Core/Formatters.lua
 local Formatters = {}
 
--- StringUtils will be accessed from the global table
+-- StringUtils will be passed directly
 local StringUtils
 
 function Formatters.default(config, level, message, ...)
