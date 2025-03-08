@@ -2,7 +2,7 @@
 local Logger = {}
 Logger.__index = Logger
 
--- Dependencies will be injected by init.lua
+-- Dependencies will be accessed from the global table
 local Config
 local LogLevels
 local Formatters
@@ -95,7 +95,7 @@ function Logger:removeCallback(id)
     self._callbacks[id] = nil
 end
 
--- Expose dependencies for injection
+-- Dependency injection
 Logger._setDependencies = function(config, logLevels, formatters, stringUtils)
     Config = config
     LogLevels = logLevels
