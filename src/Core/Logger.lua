@@ -1,10 +1,12 @@
 -- Oratio/src/Core/Logger.lua
-local Config = require(script.Parent.Parent.Config)
-local LogLevels = require(script.Parent.LogLevels)
-local Formatters = require(script.Parent.Formatters)
-
 local Logger = {}
 Logger.__index = Logger
+
+-- Dependencies will be injected by init.lua
+local Config
+local LogLevels
+local Formatters
+local StringUtils
 
 function Logger.new(config)
     local self = setmetatable({}, Logger)
@@ -91,6 +93,14 @@ end
 
 function Logger:removeCallback(id)
     self._callbacks[id] = nil
+end
+
+-- Expose dependencies for injection
+Logger._setDependencies = function(config, logLevels, formatters, stringUtils)
+    Config = config
+    LogLevels = logLevels
+    Formatters = formatters
+    StringUtils = stringUtils
 end
 
 return Logger
