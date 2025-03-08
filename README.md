@@ -99,17 +99,3 @@ Feel free to fork this repository and submit pull requests with enhancements or 
 
 ## License
 Oratio is provided as-is without a formal license. Use it at your own discretion.
-
-### Explanation
-1. **Loadstring at Top**: The README starts with the loadstring command, making it immediately accessible for users to copy and paste into their scripts.
-2. **Overview**: Briefly describes Oratio's purpose and version.
-3. **Features**: Highlights the key enhancements (sections, indicators, separators, etc.).
-4. **Installation**: Simple instructions tailored for executor use.
-5. **Usage**: Provides practical examples, including basic logging, sections, custom levels, configuration, and global data.
-6. **Customization**: Encourages users to tweak formatters and log levels.
-7. **Repository and License**: Links to your GitHub and notes the informal license status.
-
-### Instructions
-- Save this content as `README.md` in your "LxckStxp/Oratio" repository.
-- Ensure all files (including the enhanced versions of `init.lua`, `Logger.lua`, `Formatters.lua`, and `demo.lua`) are uploaded to match the documentation.
-- The README is now ready to guide users on how to use Oratio effectively in their cheat scripts!
