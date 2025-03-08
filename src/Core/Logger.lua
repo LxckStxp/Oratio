@@ -7,31 +7,43 @@ local Config
 local LogLevels
 local Formatters
 local StringUtils
+local LogTargets
 
 function Logger.new(config)
     local self = setmetatable({}, Logger)
     
     self.config = Config.new(config)
-    self._minLevelValue = LogLevels.getValue(self.config.minLevel)
+    self._minLevelValue = self:_getLevelValue(self.config.minLevel)
     self._history = self.config.storeHistory and {} or nil
     self._callbacks = {}
     
     return self
 end
 
+function Logger:_getLevelValue(level)
+    return (LogLevels[level] and LogLevels[level].value) or
+           (_G.OratioGlobal.CustomLevels[level] and _G.OratioGlobal.CustomLevels[level].value) or 0
+end
+
 function Logger:_log(level, message, ...)
-    local levelValue = LogLevels.getValue(level)
+    local levelValue = self:_getLevelValue(level)
     if levelValue < self._minLevelValue then
         return
     end
     
-    local levelName = LogLevels.getName(level)
-    -- Fallback to a simple string if formatter fails
+    local levelName = (LogLevels[level] and LogLevels[level].name) or
+                     (_G.OratioGlobal.CustomLevels[level] and _G.OratioGlobal.CustomLevels[level].name) or "UNKNOWN"
     local formatter = self.config.formatter or (Formatters and Formatters.default) or function(_, _, msg) return msg end
     local formatted = formatter(self.config, levelName, message, ...)
     
+    -- Add stack trace if enabled (via config)
+    if self.config.includeStackTrace then
+        local stack = debug.traceback()
+        formatted = formatted .. "\nStack Trace: " .. stack
+    end
+    
     if self.config.outputEnabled then
-        print(formatted)
+        LogTargets:log(formatted)
     end
     
     if self._history then
@@ -53,9 +65,14 @@ Logger.warn = function(self, msg, ...) self:_log("WARNING", msg, ...) end
 Logger.error = function(self, msg, ...) self:_log("ERROR", msg, ...) end
 Logger.critical = function(self, msg, ...) self:_log("CRITICAL", msg, ...) end
 
+-- Support for custom levels
+Logger.log = function(self, level, msg, ...)
+    self:_log(level, msg, ...)
+end
+
 -- Configuration methods
 function Logger:setMinLevel(level)
-    self._minLevelValue = LogLevels.getValue(level)
+    self._minLevelValue = self:_getLevelValue(level)
     self.config.minLevel = level
 end
 
@@ -69,7 +86,7 @@ end
 
 function Logger:configure(config)
     self.config = self.config:merge(config)
-    self._minLevelValue = LogLevels.getValue(self.config.minLevel)
+    self._minLevelValue = self:_getLevelValue(self.config.minLevel)
 end
 
 -- History management
@@ -97,11 +114,12 @@ function Logger:removeCallback(id)
 end
 
 -- Dependency injection
-Logger._setDependencies = function(config, logLevels, formatters, stringUtils)
+Logger._setDependencies = function(config, logLevels, formatters, stringUtils, logTargets)
     Config = config
     LogLevels = logLevels
     Formatters = formatters
     StringUtils = stringUtils
+    LogTargets = logTargets
 end
 
 return Logger
