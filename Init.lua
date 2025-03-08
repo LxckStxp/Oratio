@@ -1,36 +1,64 @@
 -- Oratio/init.lua
 local baseUrl = "https://raw.githubusercontent.com/LxckStxp/Oratio/main/"
 
-local Oratio = {
+-- Set up global Oratio table if it doesn't exist
+_G.OratioGlobal = _G.OratioGlobal or {
     VERSION = "2.0.0",
-    _services = {}
+    Services = {},
+    Modules = {},
+    Data = {} -- General-purpose data storage
 }
 
--- Load dependencies using loadstring and game:HttpGet
-Oratio.Config = loadstring(game:HttpGet(baseUrl .. "src/Config.lua", true))()
-Oratio.LogLevels = loadstring(game:HttpGet(baseUrl .. "src/Core/LogLevels.lua", true))()
-Oratio.Formatters = loadstring(game:HttpGet(baseUrl .. "src/Core/Formatters.lua", true))()
-Oratio.Logger = loadstring(game:HttpGet(baseUrl .. "src/Core/Logger.lua", true))()
+local Oratio = _G.OratioGlobal
 
--- Inject dependencies into Logger (since it needs them)
-Oratio.Logger.Config = Oratio.Config
-Oratio.Logger.LogLevels = Oratio.LogLevels
-Oratio.Logger.Formatters = Oratio.Formatters
-Oratio.Logger.StringUtils = loadstring(game:HttpGet(baseUrl .. "src/Utilities/StringUtils.lua", true))()
+-- Load dependencies only if not already loaded
+if not Oratio.Modules.Config then
+    Oratio.Modules.Config = loadstring(game:HttpGet(baseUrl .. "src/Config.lua", true))()
+end
+if not Oratio.Modules.LogLevels then
+    Oratio.Modules.LogLevels = loadstring(game:HttpGet(baseUrl .. "src/Core/LogLevels.lua", true))()
+end
+if not Oratio.Modules.Formatters then
+    Oratio.Modules.Formatters = loadstring(game:HttpGet(baseUrl .. "src/Core/Formatters.lua", true))()
+end
+if not Oratio.Modules.Logger then
+    Oratio.Modules.Logger = loadstring(game:HttpGet(baseUrl .. "src/Core/Logger.lua", true))()
+end
+if not Oratio.Modules.StringUtils then
+    Oratio.Modules.StringUtils = loadstring(game:HttpGet(baseUrl .. "src/Utilities/StringUtils.lua", true))()
+end
+
+-- Inject dependencies into Logger and Formatters
+Oratio.Modules.Logger._setDependencies(
+    Oratio.Modules.Config,
+    Oratio.Modules.LogLevels,
+    Oratio.Modules.Formatters,
+    Oratio.Modules.StringUtils
+)
+Oratio.Modules.Formatters._setStringUtils(Oratio.Modules.StringUtils)
 
 -- Convenience method to create a new logger
 function Oratio.new(config)
-    return Oratio.Logger.new(config or {})
+    return Oratio.Modules.Logger.new(config or {})
 end
 
 -- Service registration for advanced usage
 function Oratio:RegisterService(name, service)
-    self._services[name] = service
+    self.Services[name] = service
     return service
 end
 
 function Oratio:GetService(name)
-    return self._services[name]
+    return self.Services[name]
+end
+
+-- Global data access methods
+function Oratio:SetData(key, value)
+    self.Data[key] = value
+end
+
+function Oratio:GetData(key)
+    return self.Data[key]
 end
 
 return Oratio
