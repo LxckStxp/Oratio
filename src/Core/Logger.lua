@@ -25,10 +25,9 @@ function Logger:_log(level, message, ...)
         return
     end
     
-    local timestamp = os.time()
     local levelName = LogLevels.getName(level)
     local formatter = self.config.formatter or Formatters.default
-    local formatted = formatter(self.config, levelName, message, timestamp, ...)
+    local formatted = formatter(self.config, levelName, message, ...)
     
     if self.config.outputEnabled then
         print(formatted)
@@ -36,14 +35,13 @@ function Logger:_log(level, message, ...)
     
     if self._history then
         table.insert(self._history, {
-            timestamp = timestamp,
             level = levelName,
             message = formatted
         })
     end
     
     for _, callback in pairs(self._callbacks) do
-        pcall(callback, levelName, formatted, timestamp)
+        pcall(callback, levelName, formatted)
     end
 end
 
